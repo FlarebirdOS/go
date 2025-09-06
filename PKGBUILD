@@ -1,23 +1,17 @@
 pkgname=go
 pkgver=1.25.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Core compiler tools for the Go programming language"
 arch=('x86_64')
 url="https://golang.org/"
 license=('BSD-3-Clause')
+makedepends=('go')
 options=('!strip')
-source=(https://go.dev/dl/${pkgname}${pkgver}.src.tar.gz
-    https://go.dev/dl/${pkgname}${pkgver}.linux-amd64.tar.gz)
-noextract=(${pkgname}${pkgver}.linux-amd64.tar.gz)
-sha256sums=(d010c109cee94d80efe681eab46bdea491ac906bf46583c32e9f0dbb0bd1a594
-    7716a0d940a0f6ae8e1f3b3f4f36299dc53e31b16840dbd171254312c41ca12e)
+source=(https://go.dev/dl/${pkgname}${pkgver}.src.tar.gz)
+sha256sums=(d010c109cee94d80efe681eab46bdea491ac906bf46583c32e9f0dbb0bd1a594)
 
 prepare() {
-
-    install -vdm755 goroot
-    tar -xf ${pkgname}${pkgver}.linux-amd64.tar.gz -C goroot
-
-    cd ${pkgname}/src
+    cd ${pkgname}
 
     # It leaves some traces...
     rm -vf runtime/{os_plan9.go.orig,os_windows.go.orig,proc.go.orig,vgetrandom_linux.go.orig}
@@ -31,6 +25,9 @@ build() {
     export GOAMD64=v1
     export GOROOT_FINAL=/usr/lib64/go
     export GOROOT_BOOTSTRAP=${srcdir}/goroot/go
+
+    # Disable dwarf5 until debugedit catches up
+    export GOEXPERIMENT=nodwarf5
 
     ./make.bash -v
 }
